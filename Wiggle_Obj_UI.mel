@@ -1,0 +1,81 @@
+{
+
+proc string CreateWindow(string $windowName, int $width, int $height)
+{
+
+    global string $editedWindow;
+    if (`window -ex $editedWindow`)
+    {
+            deleteUI -window $editedWindow;
+
+    }
+
+    string $mainWindow = `window
+                         -title $windowName
+                         -widthHeight $width $height`;
+
+     showWindow $mainWindow;
+     return $mainWindow;
+
+}
+
+
+proc WiggleUI()
+{
+
+    global string $editedWindow;
+    $editedWindow = CreateWindow("Wiggle", 400, 100);
+    columnLayout;
+    floatSliderGrp -label "Wiggle" -minValue 0 -maxValue 1.0 -dc "DoMove()" -value 0 "wiggle";
+    text -l "Value Range";
+    floatFieldGrp -label "Min Value" -value1 1 "minValueRange" ;
+    floatFieldGrp -label "Max Value" -value1 1.1 "maxValueRange";
+}
+
+
+proc string GetSelection()
+{
+
+    string $selection[] = `ls -sl -typ "transform"`;
+    if (size($selection) >1 || size($selection) ==0)
+        {
+            error "You must select one object";
+
+        }
+    return $selection[0];
+}
+
+
+proc string[] GetRange()
+{
+    string $valueRange[];
+    $minValue = `floatFieldGrp -query -v1 "minValueRange"`;
+    $maxValue = `floatFieldGrp -query -v1 "maxValueRange"`;
+    $valueRange[0] = $minValue;
+    $valueRange[1] = $maxValue;
+
+    return $valueRange;
+
+}
+
+
+proc DoMove()
+{
+
+
+    string $obj = GetSelection();
+    string $valueRange[] = GetRange();
+    float $minRangeValue = $valueRange[0];
+    float $maxRangeValue = $valueRange[1];
+
+    float $randX = `rand ($minRangeValue) ($maxRangeValue)`;
+    float $randY = `rand ($minRangeValue) ($maxRangeValue)`;
+    float $randZ = `rand ($minRangeValue) ($maxRangeValue)`;
+    move -os -xyz ($randX)($randY)($randZ) $obj;
+
+}
+
+
+WiggleUI();
+
+}
